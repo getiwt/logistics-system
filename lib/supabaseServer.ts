@@ -1,12 +1,22 @@
+// lib/supabaseServer.ts
 import { createClient } from "@supabase/supabase-js";
 
 export function supabaseServer() {
-  const url = process.env.SUPABASE_URL!;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  // サーバー用（API Route用）
+  const url =
+    process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
 
-  if (!url || !key) {
-    throw new Error("SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY が .env.local にありません");
+  const serviceRoleKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!url || !serviceRoleKey) {
+    // ".env.local" って決め打ちせず、Vercelの環境変数を案内する文言にする
+    throw new Error(
+      "Supabase env missing: set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in Vercel Environment Variables"
+    );
   }
 
-  return createClient(url, key, { auth: { persistSession: false } });
+  return createClient(url, serviceRoleKey, {
+    auth: { persistSession: false },
+  });
 }
