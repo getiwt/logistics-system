@@ -55,6 +55,12 @@ export default function Home() {
             href="/customers"
           />
 
+	 <Card
+  	    title="得意先別集計"
+            desc="期間内の明細を得意先ごとに合計表示"
+            href="/reports/customer-summary"
+	 />
+
           <Card
             title="請求書発行"
             desc="月次集計・締め・請求書PDF（後で実装）"
@@ -62,13 +68,18 @@ export default function Home() {
             badge="準備中"
           />
 
+
           <Card
             title="設定"
             desc="消費税/課税区分（高速代は課税）など（後で実装）"
             href="/settings"
             badge="準備中"
           />
+
         </div>
+
+
+
 
         <footer className="mt-8 text-xs text-zinc-500">
           ※ まだページが無いメニューは 404 になります。次で「customers/invoices/settings」の箱を作ります。

@@ -7,19 +7,21 @@ export async function GET(req: Request) {
     const from = url.searchParams.get("from");
     const to = url.searchParams.get("to");
     const customerId = url.searchParams.get("customer_id");
-    const status = url.searchParams.get("status"); // 'unclosed' など
+    const status = url.searchParams.get("status");
 
     const supabase = supabaseServer();
 
     let q = supabase
       .from("shipments")
-      .select("id,date,customer_id,origin,destination,item_name,vehicle_no,driver_name,partner_name,freight_amount,toll_amount,tax_exempt_amount,note,status, customers(name)")
+      .select(
+        "id,date,customer_id,origin,destination,item_name,vehicle_no,driver_name,partner_name,freight_amount,toll_amount,tax_exempt_amount,note,status, customers(name)"
+      )
       .order("date", { ascending: false })
       .order("id", { ascending: false });
 
     if (from) q = q.gte("date", from);
     if (to) q = q.lte("date", to);
-    if (customerId) q = q.eq("customer_id", Number(customerId));
+    if (customerId) q = q.eq("customer_id", customerId); // ★ここだけ変更
     if (status) q = q.eq("status", status);
 
     const { data, error } = await q;
