@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
 type Shipment = {
@@ -33,7 +33,11 @@ function cleanMoneyToInt(value: string): number {
   return Number.isFinite(n) ? Math.trunc(n) : 0;
 }
 
-export default function InvoicePreviewPage() {
+/**
+ * ✅ Next.jsのビルドエラー対策：
+ * useSearchParams() を使う部分を Suspense で包む
+ */
+function InvoicePreviewInner() {
   const sp = useSearchParams();
   const router = useRouter();
 
@@ -127,7 +131,7 @@ export default function InvoicePreviewPage() {
         item_name: editing.item_name?.trim() ? editing.item_name.trim() : null,
         vehicle_no: editing.vehicle_no?.trim() ? editing.vehicle_no.trim() : null,
         driver_name: editing.driver_name?.trim() ? editing.driver_name.trim() : null,
-        partner_name: null, // 今回は請求書プレビューでは触らない
+        partner_name: null,
         freight_amount: Number(editing.freight_amount || 0),
         toll_amount: Number(editing.toll_amount || 0),
         tax_exempt_amount: Number(editing.tax_exempt_amount || 0),
@@ -169,9 +173,7 @@ export default function InvoicePreviewPage() {
               <span className="font-mono text-zinc-900">{to}</span>
               {status === "unclosed" ? "（未締のみ）" : ""}
             </div>
-            <div className="mt-1 text-xs text-zinc-500">
-              ※ 行をクリックすると編集できます（締済は編集不可）
-            </div>
+            <div className="mt-1 text-xs text-zinc-500">※ 行をクリックすると編集できます（締済は編集不可）</div>
           </div>
 
           <div className="text-right">
@@ -236,7 +238,9 @@ export default function InvoicePreviewPage() {
                   return (
                     <tr
                       key={r.id}
-                      className={`border-t border-zinc-100 ${canEdit ? "cursor-pointer hover:bg-blue-50" : "opacity-60"}`}
+                      className={`border-t border-zinc-100 ${
+                        canEdit ? "cursor-pointer hover:bg-blue-50" : "opacity-60"
+                      }`}
                       onClick={() => canEdit && openEdit(r)}
                       title={canEdit ? "クリックで編集" : "締済のため編集不可"}
                     >
@@ -250,6 +254,14 @@ export default function InvoicePreviewPage() {
                     </tr>
                   );
                 })}
+
+                {loading && (
+                  <tr>
+                    <td className="px-3 py-10 text-center text-zinc-500" colSpan={7}>
+                      読み込み中…
+                    </td>
+                  </tr>
+                )}
 
                 {!loading && rows.length === 0 && (
                   <tr>
@@ -341,9 +353,7 @@ export default function InvoicePreviewPage() {
                   <input
                     inputMode="numeric"
                     value={String(editing.toll_amount ?? 0)}
-                    onChange={(e) =>
-                      setEditing({ ...editing, toll_amount: cleanMoneyToInt(e.target.value) })
-                    }
+                    onChange={(e) => setEditing({ ...editing, toll_amount: cleanMoneyToInt(e.target.value) })}
                     className="w-full rounded-xl border border-zinc-200 px-3 py-2 text-sm"
                   />
                 </Field>
@@ -353,10 +363,7 @@ export default function InvoicePreviewPage() {
                     inputMode="numeric"
                     value={String(editing.tax_exempt_amount ?? 0)}
                     onChange={(e) =>
-                      setEditing({
-                        ...editing,
-                        tax_exempt_amount: cleanMoneyToInt(e.target.value),
-                      })
+                      setEditing({ ...editing, tax_exempt_amount: cleanMoneyToInt(e.target.value) })
                     }
                     className="w-full rounded-xl border border-zinc-200 px-3 py-2 text-sm"
                   />
@@ -408,6 +415,14 @@ export default function InvoicePreviewPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function InvoicePreviewPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white p-6">読み込み中…</div>}>
+      <InvoicePreviewInner />
+    </Suspense>
   );
 }
 
