@@ -69,7 +69,18 @@ const emptyForm = (carry?: Partial<Shipment>): Shipment => ({
 });
 
 /** ✅ これがエクスポート（Suspenseで包むだけ） */
+function ShipmentsPageInner() {
+
 export default function ShipmentsPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-zinc-50 p-6">読み込み中…</div>}>
+      <ShipmentsPageInner />
+    </Suspense>
+  );
+}
+
+
+
   return (
     <Suspense fallback={<div className="min-h-screen bg-zinc-50 p-6">読み込み中…</div>}>
       <ShipmentsPageInner />
