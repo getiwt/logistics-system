@@ -49,6 +49,14 @@ export default function Home() {
             badge="最優先"
           />
 
+<Card
+  title="配車（自動並べ替え）"
+  desc="未締データを近い順に並べ替えて配車判断"
+  href="/dispatch"
+  badge="NEW"
+/>
+
+
           <Card
             title="得意先マスター"
             desc="得意先の追加・編集（後で作る/今は仮ページでもOK）"
